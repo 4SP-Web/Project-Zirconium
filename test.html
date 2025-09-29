@@ -28,6 +28,70 @@
         main {
             flex-grow: 1;
         }
+        /* A class to prevent scrolling when an overlay is active */
+        body.no-scroll {
+            overflow: hidden;
+        }
+
+        /* --- MOBILE ASPECT RATIO WARNING STYLES --- */
+        #mobile-warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            /* The backdrop-filter blurs content behind the element */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); /* For Safari browser compatibility */
+            z-index: 9999;
+            display: none; /* Hidden by default; shown by JS */
+            justify-content: center;
+            align-items: center;
+            font-family: 'PrimaryFont', sans-serif;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .warning-box {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 450px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+            color: #333;
+        }
+
+        .warning-box h2 {
+            margin-top: 0;
+            font-size: 1.8em;
+            text-transform: uppercase;
+        }
+
+        .warning-box p {
+            font-size: 1.05em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        #continue-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #6720BD; /* Matches your site's theme color */
+            color: #fff;
+            font-family: 'PrimaryFont', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #continue-btn:hover {
+            background-color: #4b138f; /* A darker shade for the hover effect */
+        }
+
 
         /* --- STYLES FOR VERSION HISTORY, WHAT'S NEW, & FOOTER --- */
         .timeline-section, .whats-new-section {
@@ -305,8 +369,8 @@
         </section>
         <section class="hp-infra-section light-bg">
             <div class="container">
-                <h2>over 120 users, and counting.</h2>
-                <p>Engage in video games, modify your experience in the settings page, and have fun.</p>
+                <h2>over 140 users, and counting.</h2>
+                <p>Engage in uneducational games, modify your experience, and escape reality.</p>
             </div>
         </section>
         <section class="info-sections light-bg">
@@ -383,7 +447,14 @@
         </div>
     </footer>
 
-    <!-- Version Details Modal -->
+    <div id="mobile-warning-overlay">
+        <div class="warning-box">
+            <h2>Desktop Recommended</h2>
+            <p>This website is best viewed on a desktop or in landscape mode. Some features may not work as expected on a mobile device.</p>
+            <button id="continue-btn">Continue Anyway</button>
+        </div>
+    </div>
+
     <div id="versionModalBackdrop" class="modal-backdrop"></div>
     <div id="versionModal" class="version-modal">
         <div id="modalInnerContent" class="modal-inner-content">
@@ -604,36 +675,62 @@
             }
         });
 
-        // Dropdown Menu Logic
+        // Dropdown Menu & Aspect Ratio Logic
         document.addEventListener('DOMContentLoaded', () => {
             const dropdownTrigger = document.getElementById('more-dropdown');
             const dropdownContent = document.getElementById('more-menu-content');
 
-            if (!dropdownTrigger || !dropdownContent) return;
+            if (dropdownTrigger && dropdownContent) {
+                let hideTimeout;
 
-            let hideTimeout;
+                const showMenu = () => {
+                    clearTimeout(hideTimeout);
+                    const rect = dropdownTrigger.getBoundingClientRect();
+                    dropdownContent.style.top = `${window.scrollY + rect.bottom + 10}px`;
+                    dropdownContent.style.left = `${rect.left}px`;
+                    dropdownContent.classList.add('show');
+                };
 
-            const showMenu = () => {
-                clearTimeout(hideTimeout);
-                const rect = dropdownTrigger.getBoundingClientRect();
-                dropdownContent.style.top = `${window.scrollY + rect.bottom + 10}px`;
-                dropdownContent.style.left = `${rect.left}px`;
-                dropdownContent.classList.add('show');
-            };
+                const hideMenu = () => {
+                    hideTimeout = setTimeout(() => {
+                        dropdownContent.classList.remove('show');
+                    }, 200);
+                };
 
-            const hideMenu = () => {
-                hideTimeout = setTimeout(() => {
-                    dropdownContent.classList.remove('show');
-                }, 200);
-            };
+                dropdownTrigger.addEventListener('mouseenter', showMenu);
+                dropdownTrigger.addEventListener('mouseleave', hideMenu);
+                
+                dropdownContent.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+                dropdownContent.addEventListener('mouseleave', hideMenu);
+            }
 
-            dropdownTrigger.addEventListener('mouseenter', showMenu);
-            dropdownTrigger.addEventListener('mouseleave', hideMenu);
-            
-            dropdownContent.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-            dropdownContent.addEventListener('mouseleave', hideMenu);
+            // --- NEW: ASPECT RATIO WARNING LOGIC ---
+            const overlay = document.getElementById('mobile-warning-overlay');
+            const continueBtn = document.getElementById('continue-btn');
+
+            function checkAspectRatio() {
+                // Aspect Ratio is calculated by width / height.
+                // If the result is 1 or less, it means the viewport is square or portrait.
+                const aspectRatio = window.innerWidth / window.innerHeight;
+                if (aspectRatio <= 1) { 
+                    overlay.style.display = 'flex';
+                    document.body.classList.add('no-scroll');
+                }
+            }
+
+            function hideOverlay() {
+                overlay.style.display = 'none';
+                document.body.classList.remove('no-scroll');
+            }
+
+            // Check the aspect ratio as soon as the page is ready
+            checkAspectRatio();
+
+            // Add the click event to the continue button
+            if (continueBtn) {
+                continueBtn.addEventListener('click', hideOverlay);
+            }
         });
     </script>
 </body>
 </html>
-
