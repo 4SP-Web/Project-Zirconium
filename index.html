@@ -3,36 +3,580 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Project Title</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script src="activator-mini.js"></script>
+    <title>4SP - HOME</title>
+    <script src="/activator-mini.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
+
+    <style>
+        /* --- CSS STYLES ARE NOW EMBEDDED IN THIS HTML FILE --- */
+
+        /* Font Imports */
+        @font-face {
+            font-family: 'PrimaryFont'; /* Your primary font */
+            src: url('../fonts/primary.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'SecondaryFont'; /* Your secondary font */
+            src: url('../fonts/secondary.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Basic Resets & Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'SecondaryFont', sans-serif;
+            line-height: 1.6;
+            color: #ccc; /* Default light text color for dark theme */
+            background-color: #121212; /* Global dark background */
+        }
+        
+        main {
+            flex-grow: 1;
+            background-color: #121212; /* Main content background */
+            position: relative; /* Needed for z-index stacking */
+            z-index: 5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* --- NEW: BINARY CANVAS BACKGROUND --- */
+        #binary-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Sits behind the hero content but above the body bg */
+            transition: opacity 0.5s ease-out; /* For fade-on-scroll effect */
+        }
+        
+        /* --- Hero Section (Dark Background with Binary Canvas) --- */
+        .hero-section {
+            background-color: transparent; /* Transparent to show the canvas behind it */
+            color: #fff;
+            padding: 150px 0; /* Increased padding for more impact */
+            position: relative; /* Needed for z-index */
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh; /* Give the hero section significant height */
+        }
+
+        .hero-section h1 {
+            font-family: 'PrimaryFont', sans-serif;
+            font-size: 4.5em; /* Larger font size */
+            line-height: 1.1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .hero-section p {
+            font-family: 'SecondaryFont', sans-serif;
+            font-size: 1.2em;
+            color: #bbb;
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+        }
+
+        /* --- Main Header (Dark Theme) --- */
+        .main-header {
+            background-color: rgba(18, 18, 18, 0.85); /* Semi-transparent dark bg */
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            border-bottom: 1px solid #2a2a2a;
+            position: sticky; /* Make header sticky */
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+            max-height: 100px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        
+        .main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 20px;
+        }
+        
+        .logo img {
+            height: 60px; /* Adjust logo height as needed */
+            width: auto;
+            display: block;
+            margin-right: 25px;
+        }
+
+        .main-nav {
+            flex-grow: 1;
+        }
+
+        .main-nav ul {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .main-nav a {
+            font-family: 'SecondaryFont', sans-serif;
+            font-weight: 500;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        .main-nav a:hover {
+            color: #00f0ff; /* Neon cyan hover color */
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        /* This hides links by default before JS determines auth state */
+        .logged-in-link, .logged-out-link {
+            display: none;
+        }
+
+        /* --- News Bar (Dark Theme) --- */
+        .news-bar {
+            background-color: #1a1a1a;
+            padding: 12px 0;
+            text-align: center;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .news-bar p {
+            font-family: 'SecondaryFont', sans-serif;
+            font-size: 0.9em;
+            color: #ddd;
+            display: inline-block;
+            padding: 5px 15px;
+            border: 1px solid #444;
+            border-radius: 48px;
+            background-color: #222;
+        }
+        
+        /* --- Content Sections (General) --- */
+        .content-section {
+            padding: 80px 0;
+            text-align: center;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .content-section h2 {
+            font-family: 'PrimaryFont', sans-serif;
+            font-size: 2.8em;
+            margin-bottom: 20px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .content-section .section-subtitle {
+            font-family: 'SecondaryFont', sans-serif;
+            font-size: 1.1em;
+            color: #aaa;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- Info Sections (Dark Theme) --- */
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 60px;
+            gap: 50px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-image {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .info-image img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1); /* Subtle cyan glow */
+        }
+
+        .info-content {
+            flex: 1.5;
+            text-align: left;
+        }
+
+        .info-content h3 {
+            font-family: 'PrimaryFont', sans-serif;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            color: #eee;
+        }
+
+        .info-content p {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #bbb;
+        }
+
+        .info-item.left-image { flex-direction: row; }
+        .info-item.right-image { flex-direction: row-reverse; }
+
+        /* --- NEW: Redesigned Vertical Timeline --- */
+        .timeline-section {
+            position: relative;
+        }
+
+        .timeline-container {
+            position: relative;
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        /* The vertical line */
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-image: linear-gradient(to bottom, #00f0ff, #7a00ff);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            z-index: 1;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+        
+        .timeline-entry {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            z-index: 2;
+        }
+
+        /* The circle on the timeline */
+        .timeline-entry::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: #121212;
+            border: 4px solid #00f0ff;
+            top: 15px;
+            border-radius: 50%;
+            z-index: 3;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .timeline-entry:hover::after {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+        }
+
+        /* Entries on the left */
+        .timeline-left {
+            left: 0;
+            text-align: right;
+        }
+
+        /* Entries on the right */
+        .timeline-right {
+            left: 50%;
+        }
+
+        .timeline-right::after {
+            left: -10px;
+        }
+
+        .timeline-content {
+            padding: 20px 30px;
+            background-color: #1a1a1a;
+            position: relative;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .timeline-content h3 {
+            font-family: 'PrimaryFont', sans-serif;
+            color: #00f0ff;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content .timeline-date {
+            font-family: 'SecondaryFont', sans-serif;
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .timeline-content p {
+            font-size: 1em;
+            color: #bbb;
+        }
+
+        /* --- Buttons (Dark Theme) --- */
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 24px; /* Pill-shaped buttons */
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'PrimaryFont', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            border: 2px solid transparent;
+        }
+        
+        /* Primary CTA Button */
+        .btn-primary {
+            background-color: #00f0ff; /* Neon cyan */
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+        
+        .btn-primary:hover {
+            background-color: #fff;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+            transform: translateY(-2px);
+        }
+        
+        /* Secondary "Ghost" Button */
+        .btn-secondary {
+            background-color: transparent;
+            color: #00f0ff; /* Neon cyan text */
+            border: 2px solid #00f0ff;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #00f0ff;
+            color: #000;
+        }
+        
+        /* Auth buttons in header */
+        .btn-login {
+            background-color: transparent;
+            color: #ccc;
+            border: 1px solid #555;
+            padding: 8px 18px;
+        }
+        
+        .btn-login:hover {
+            background-color: #222;
+            border-color: #777;
+        }
+
+        .btn-signup {
+            background-color: #00f0ff;
+            color: #000;
+            border: none;
+            padding: 8px 18px;
+        }
+
+        .btn-signup:hover {
+            background-color: #fff;
+        }
+        
+        .btn-logout {
+             background-color: transparent;
+             color: #ccc;
+             border: 1px solid #555;
+             padding: 8px 18px;
+        }
+        
+        .btn-logout:hover {
+             background-color: #222;
+             border-color: #777;
+        }
+
+        /* --- Footer (Dark Theme) --- */
+        footer {
+            background-color: #0a0a0a;
+            color: #777;
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #2a2a2a;
+            position: relative;
+            z-index: 5;
+        }
+        
+        /* --- Dropdown Styles (Dark Theme) --- */
+        .dropdown-content {
+            display: block;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease-out, transform 0.25s ease-out, visibility 0.25s;
+            font-family: 'SecondaryFont', sans-serif;
+            position: absolute;
+            z-index: 9999;
+            background-color: #1f1f1f; /* Dark background */
+            min-width: 180px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        .dropdown-content.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 12px 16px;
+            font-family: 'PrimaryFont', sans-serif;
+            color: #eee;
+            cursor: default;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            margin: 0 10px;
+            border: none;
+            background-color: #444;
+        }
+
+        .dropdown-content a {
+            color: #ccc;
+            padding: 12px 16px;
+            display: block;
+            text-align: left;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #333;
+            color: #00f0ff;
+        }
+
+        .main-nav .dropdown {
+            position: relative;
+        }
+        
+        .main-nav .dropdown .dropbtn {
+            cursor: default;
+        }
+
+        /* --- Responsive Considerations --- */
+        @media (max-width: 768px) {
+            .hero-section h1 { font-size: 2.8em; }
+            .content-section h2 { font-size: 2.2em; }
+            .info-content h3 { font-size: 1.8em; }
+
+            .main-header .container {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .logo {
+                margin-bottom: 15px;
+            }
+
+            .main-nav ul {
+                justify-content: center;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            .info-item, .info-item.right-image {
+                flex-direction: column;
+                text-align: center;
+            }
+            .info-content {
+                text-align: center;
+            }
+            
+            /* Timeline adjustments for mobile */
+            .timeline-container::after { left: 31px; }
+            .timeline-entry {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            .timeline-entry::after {
+                left: 21px; /* Position circle on the line */
+            }
+            .timeline-left, .timeline-right {
+                left: 0%;
+                text-align: left;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="binary-background"></div>
+    <canvas id="binary-canvas"></canvas>
 
     <main>
         <section class="hero-section">
             <div class="container">
-                <h1>Your Project Title</h1>
+                <h1>YOUR PROJECT TITLE</h1>
+                <p>A compelling tagline about your project's mission, goals, or unique features. Keep it concise and impactful.</p>
+                <div class="hero-actions">
+                    <a href="#features" class="btn btn-primary">LEARN MORE</a>
+                    <a href="signup.html" class="btn btn-secondary">GET STARTED</a>
+                </div>
             </div>
         </section>
 
         <header class="main-header">
             <div class="container">
                 <div class="logo">
-                    <img src="images/logo-light.png" alt="Your Logo">
+                    <img src="images/logo-light.png" alt="4SP Logo">
                 </div>
                 <nav class="main-nav">
                     <ul id="mainNavLinks">
                         <li class="dropdown" id="more-dropdown">
                             <a class="dropbtn">MORE</a>
                         </li>
-                        <li class="logged-in-link" style="display: none;"><a href="logged-in/dashboard.html">DASHBOARD</a></li>
+                        <li class="logged-in-link"><a href="logged-in/dashboard.html">DASHBOARD</a></li>
                     </ul>
                 </nav>
                 <div class="auth-buttons" id="authButtons">
@@ -42,257 +586,171 @@
 
         <section class="news-bar">
             <div class="container">
-                <p>Your Quick Annoucement or Tagline Here</p>
+                <p>Latest News: Announcing our brand new design and features!</p>
             </div>
         </section>
 
-        <div class="main-page-content-wrapper">
-            <section class="hp-infra-section">
-                <div class="container">
-                    <h2>Catchy Tagline Or Statistic</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <section id="features" class="content-section">
+            <div class="container">
+                <h2>CORE FEATURES</h2>
+                <p class="section-subtitle">Discover the powerful tools and capabilities that set our platform apart. Built for performance, designed for you.</p>
+                
+                <div class="info-item left-image">
+                    <div class="info-image"><img src="images/placeholder-1.png" alt="Feature 1"></div>
+                    <div class="info-content">
+                        <h3>INNOVATIVE TECHNOLOGY</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                    </div>
                 </div>
-            </section>
+                <div class="info-item right-image">
+                    <div class="info-image"><img src="images/placeholder-2.png" alt="Feature 2"></div>
+                    <div class="info-content">
+                        <h3>SEAMLESS INTEGRATION</h3>
+                        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    </div>
+                </div>
+                <div class="info-item left-image">
+                    <div class="info-image"><img src="images/placeholder-3.png" alt="Feature 3"></div>
+                    <div class="info-content">
+                        <h3>ROBUST SECURITY</h3>
+                        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <section class="info-sections">
-                <div class="container">
-                    <div class="info-item left-image">
-                        <div class="info-content">
-                            <h3>ABOUT US</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+        <section class="content-section timeline-section">
+            <div class="container">
+                <h2>VERSION HISTORY</h2>
+                <p class="section-subtitle">Follow our journey of innovation and improvement from the very beginning to the present day.</p>
+                <div class="timeline-container">
+                    <div class="timeline-entry timeline-left">
+                        <div class="timeline-content">
+                            <h3>Version 1.0</h3>
+                            <div class="timeline-date">March 2025</div>
+                            <p>Initial launch. Focused on core functionalities and establishing the platform's foundation.</p>
                         </div>
                     </div>
-                    <div class="info-item right-image">
-                        <div class="info-content">
-                            <h3>CORE FEATURE</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+                    <div class="timeline-entry timeline-right">
+                        <div class="timeline-content">
+                            <h3>Version 2.0</h3>
+                            <div class="timeline-date">April 2025</div>
+                            <p>Introduced a major UI redesign and added several key features based on early user feedback.</p>
                         </div>
                     </div>
-                    <div class="info-item left-image">
-                        <div class="info-content">
-                            <h3>ANOTHER FEATURE</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+                    <div class="timeline-entry timeline-left">
+                        <div class="timeline-content">
+                            <h3>Version 3.0</h3>
+                            <div class="timeline-date">May 2025</div>
+                            <p>Performance overhaul and expansion of integration capabilities with third-party services.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-entry timeline-right">
+                        <div class="timeline-content">
+                            <h3>Version 4.0</h3>
+                            <div class="timeline-date">August 2025</div>
+                            <p>The current version. Complete overhaul focusing on security, user experience, and new content modules.</p>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section class="timeline-section">
-                <div class="container">
-                    <h2>VERSION HISTORY</h2>
-                    <div class="timeline-container">
-                        <div class="timeline-wrapper">
-                            <div class="timeline-item" onclick="showVersionDetails('v1', event)">
-                                <div class="timeline-circle"></div>
-                                <div class="timeline-item-content">
-                                    <h3>Version 1</h3>
-                                    <p>March 13th, 2025</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item" onclick="showVersionDetails('v2', event)">
-                                <div class="timeline-circle"></div>
-                                <div class="timeline-item-content">
-                                    <h3>Version 2</h3>
-                                    <p>April 11th, 2025</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item" onclick="showVersionDetails('v3', event)">
-                                <div class="timeline-circle"></div>
-                                <div class="timeline-item-content">
-                                    <h3>Version 3</h3>
-                                    <p>May 14th, 2025</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item" onclick="showVersionDetails('v4', event)">
-                                <div class="timeline-circle"></div>
-                                <div class="timeline-item-content">
-                                    <h3>Version 4</h3>
-                                    <p>August 23rd, 2025</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <section class="content-section">
+            <div class="container">
+                <h2>WHAT'S NEW</h2>
+                <div class="section-subtitle">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
                 </div>
-            </section>
-
-            <section class="whats-new-section">
-                <div class="container">
-                    <h2>WHAT'S NEW</h2>
-                    <div class="whats-new-content">
-                        <p>
-                           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                        </p>
-                    </div>
-                </div>
-            </section>
-        </div>
+            </div>
+        </section>
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; 2025 Your Company Name. All rights reserved.</p>
+            <p>&copy; 2025 4SP. All rights reserved.</p>
         </div>
     </footer>
-
-    <div id="mobile-warning-overlay">
-        <div class="warning-box">
-            <h2>Desktop Recommended</h2>
-            <p>This website is best viewed on a desktop or in landscape mode. Some features may not work as expected on a mobile device.</p>
-            <button id="continue-btn">Continue Anyway</button>
-        </div>
-    </div>
-
-    <div id="versionModalBackdrop" class="modal-backdrop"></div>
-    <div id="versionModal" class="version-modal">
-        <div id="modalInnerContent" class="modal-inner-content">
-            <button id="closeModalBtn" class="close-btn">&times;</button>
-            <h3 id="modalTitle"></h3>
-            <p id="modalStartDate"></p>
-            <p id="modalCreationDate"></p>
-            <p id="modalDescription"></p>
-            <a id="modalRedirectBtn" href="#" target="_blank" rel="noopener noreferrer" class="modal-redirect-btn">Visit Version</a>
-        </div>
-    </div>
 
     <div class="dropdown-content" id="more-menu-content">
         <div class="dropdown-header">MORE</div>
         <hr class="dropdown-divider">
         <a href="the-story.html">THE STORY</a>
         <a href="legal.html">LEGAL</a>
-        <a href="https://buymeacoffee.com/your-link" target="_blank" rel="noopener noreferrer">DONATE</a>
+        <a href="https://buymeacoffee.com/4simpleproblems" target="_blank" rel="noopener noreferrer">DONATE</a>
     </div>
 
     <script>
-        // --- BINARY BACKGROUND FADE SCRIPT ---
+        // --- NEW: Binary Background & Fade on Scroll Script ---
+        const canvas = document.getElementById('binary-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas to full screen
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let characters = '01';
+        characters = characters.split('');
+
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function drawBinary() {
+            // Semi-transparent black background to create fading effect for characters
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00f0ff'; // Neon cyan color for the characters
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = characters[Math.floor(Math.random() * characters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        // Start the animation
+        const animationInterval = setInterval(drawBinary, 50);
+
+        // Fade out canvas on scroll
         window.addEventListener('scroll', () => {
-            const background = document.getElementById('binary-background');
+            // Start fading after 100px of scroll, and be fully faded by 500px
             const scrollPosition = window.scrollY;
-            const fadeThreshold = 500; // The scroll distance (in pixels) over which the background fades completely.
+            const fadeStart = 100;
+            const fadeEnd = 500;
             
-            if (scrollPosition < fadeThreshold) {
-                const opacity = 1 - (scrollPosition / fadeThreshold);
-                background.style.opacity = opacity;
+            if (scrollPosition < fadeStart) {
+                canvas.style.opacity = 1;
+            } else if (scrollPosition >= fadeStart && scrollPosition <= fadeEnd) {
+                const opacity = 1 - (scrollPosition - fadeStart) / (fadeEnd - fadeStart);
+                canvas.style.opacity = opacity;
             } else {
-                background.style.opacity = 0;
+                canvas.style.opacity = 0;
             }
         });
-
-        // --- TIMELINE MODAL SCRIPT ---
-        const versionDetails = {
-            v1: {
-                title: 'Version 1 Details',
-                startDate: '<strong>Started:</strong> March 8th, 2025',
-                creationDate: '<strong>Released:</strong> March 13th, 2025',
-                description: 'This is placeholder text for the initial version. Describe the key features and goals of this release.',
-                url: '#' // Use a real URL or '#' to hide the button
-            },
-            v2: {
-                title: 'Version 2 Details',
-                startDate: '<strong>Started:</strong> March 21th, 2025',
-                creationDate: '<strong>Released:</strong> April 11th, 2025',
-                description: 'This is placeholder text for the second version. Explain the major updates and improvements introduced here.',
-                url: '#'
-            },
-            v3: {
-                title: 'Version 3 Details',
-                startDate: '<strong>Started:</strong> May 7th, 2025',
-                creationDate: '<strong>Released:</strong> May 14th, 2025',
-                description: 'This is placeholder text for the third version. Detail the new features and any redesigns that occurred.',
-                url: '#'
-            },
-            v4: {
-                title: 'Version 4 Details',
-                startDate: '<strong>Started:</strong> May 26th, 2025',
-                creationDate: '<strong>Released:</strong> August 23rd, 2025',
-                description: 'This is placeholder text for the current version. Summarize the most recent and significant changes.',
-                url: '#'
-            }
-        };
         
-        // The rest of your original JavaScript for the modal, auth, and dropdowns follows...
-        // No changes were needed for the core functionality of these scripts.
-        const modal = document.getElementById('versionModal');
-        const backdrop = document.getElementById('versionModalBackdrop');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        let activeCircle = null;
-        let activeModal = false;
+        // Resize canvas when window size changes
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // Recalculate columns and reset drops on resize if needed
+        });
 
-        function showVersionDetails(versionKey, event) {
-            if (activeModal) return;
-            activeModal = true;
-            const details = versionDetails[versionKey];
-            activeCircle = event.currentTarget.querySelector('.timeline-circle');
-            if (!details || !activeCircle) {
-                activeModal = false;
-                return;
-            }
-            const initialRect = activeCircle.getBoundingClientRect();
-            document.getElementById('modalTitle').innerText = details.title;
-            document.getElementById('modalStartDate').innerHTML = details.startDate;
-            document.getElementById('modalCreationDate').innerHTML = details.creationDate;
-            document.getElementById('modalDescription').innerText = details.description;
-            const redirectBtn = document.getElementById('modalRedirectBtn');
-            redirectBtn.href = details.url;
-            redirectBtn.style.display = details.url === '#' ? 'none' : 'inline-block';
-            modal.style.transition = 'none';
-            const initialTop = initialRect.top + window.scrollY;
-            const initialLeft = initialRect.left + window.scrollX;
-            modal.style.top = `${initialTop}px`;
-            modal.style.left = `${initialLeft}px`;
-            modal.style.width = `${initialRect.width}px`;
-            modal.style.height = `${initialRect.height}px`;
-            modal.style.borderRadius = '50%';
-            const innerContent = modal.querySelector('.modal-inner-content');
-            innerContent.style.opacity = 0;
-            modal.classList.add('visible');
-            backdrop.classList.add('show');
-            requestAnimationFrame(() => {
-                modal.style.transition = 'width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease, border-radius 0.4s ease';
-                const finalWidth = 320;
-                const finalHeight = 280;
-                modal.style.width = `${finalWidth}px`;
-                modal.style.height = `${finalHeight}px`;
-                modal.style.borderRadius = '16px';
-                modal.style.top = `${window.scrollY + (window.innerHeight / 2) - (finalHeight / 2)}px`;
-                let targetLeft = initialLeft - (finalWidth / 2) + (initialRect.width / 2);
-                if (targetLeft < 20) targetLeft = 20;
-                if (targetLeft + finalWidth > window.innerWidth - 20) targetLeft = window.innerWidth - finalWidth - 20;
-                modal.style.left = `${targetLeft}px`;
-                setTimeout(() => {
-                    innerContent.style.transition = 'opacity 0.3s ease';
-                    innerContent.style.opacity = 1;
-                }, 300);
-            });
-        }
 
-        function hideVersionDetails() {
-            if (!activeModal) return;
-            const innerContent = modal.querySelector('.modal-inner-content');
-            innerContent.style.transition = 'opacity 0.1s ease';
-            innerContent.style.opacity = 0;
-            backdrop.classList.remove('show');
-            setTimeout(() => {
-                modal.style.transition = 'width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease, border-radius 0.4s ease';
-                const currentRect = activeCircle.getBoundingClientRect();
-                modal.style.top = `${currentRect.top + window.scrollY}px`;
-                modal.style.left = `${currentRect.left + window.scrollX}px`;
-                modal.style.width = `${currentRect.width}px`;
-                modal.style.height = `${currentRect.height}px`;
-                modal.style.borderRadius = '50%';
-            }, 100);
-            setTimeout(() => {
-                modal.classList.remove('visible');
-                activeCircle = null;
-                activeModal = false;
-            }, 500);
-        }
-        closeModalBtn.addEventListener('click', hideVersionDetails);
-        backdrop.addEventListener('click', hideVersionDetails);
-
+        // --- One-Time Force Logout Script ---
         (function() {
             const forceLogoutKey = 'forceLogoutCompleted_v1';
             if (!localStorage.getItem(forceLogoutKey)) {
-                console.log('Performing one-time force logout...');
                 const unsubscribe = firebase.auth().onAuthStateChanged(user => {
                     unsubscribe();
                     if (user) {
@@ -311,55 +769,58 @@
             }
         })();
 
+        // --- Firebase Authentication & UI Logic ---
         const authButtonsDiv = document.getElementById('authButtons');
         const loggedInLinks = document.querySelectorAll('.logged-in-link');
+        const loggedOutLinks = document.querySelectorAll('.logged-out-link');
+
+        function logout() {
+            firebase.auth().signOut().catch(error => console.error('Error logging out:', error));
+        }
+
         firebase.auth().onAuthStateChanged(user => {
-            authButtonsDiv.innerHTML = '';
+            authButtonsDiv.innerHTML = ''; // Clear previous buttons
             if (user) {
-                authButtonsDiv.innerHTML = `<a href="#" class="btn btn-logout" onclick="firebase.auth().signOut()">LOGOUT</a>`;
+                // User is logged in
+                authButtonsDiv.innerHTML = `<a href="#" class="btn btn-logout" onclick="logout()">LOGOUT</a>`;
                 loggedInLinks.forEach(link => link.style.display = 'inline-block');
+                loggedOutLinks.forEach(link => link.style.display = 'none');
             } else {
+                // User is logged out
                 authButtonsDiv.innerHTML = `<a href="login.html" class="btn btn-login">LOGIN</a> <a href="signup.html" class="btn btn-signup">SIGN UP</a>`;
                 loggedInLinks.forEach(link => link.style.display = 'none');
+                loggedOutLinks.forEach(link => link.style.display = 'inline-block');
             }
         });
 
+        // --- Dropdown Menu Logic ---
         document.addEventListener('DOMContentLoaded', () => {
             const dropdownTrigger = document.getElementById('more-dropdown');
             const dropdownContent = document.getElementById('more-menu-content');
-            if (dropdownTrigger && dropdownContent) {
-                let hideTimeout;
-                const showMenu = () => {
-                    clearTimeout(hideTimeout);
-                    const rect = dropdownTrigger.getBoundingClientRect();
-                    dropdownContent.style.top = `${window.scrollY + rect.bottom + 10}px`;
-                    dropdownContent.style.left = `${rect.left}px`;
-                    dropdownContent.classList.add('show');
-                };
-                const hideMenu = () => {
-                    hideTimeout = setTimeout(() => dropdownContent.classList.remove('show'), 200);
-                };
-                dropdownTrigger.addEventListener('mouseenter', showMenu);
-                dropdownTrigger.addEventListener('mouseleave', hideMenu);
-                dropdownContent.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
-                dropdownContent.addEventListener('mouseleave', hideMenu);
-            }
-            const overlay = document.getElementById('mobile-warning-overlay');
-            const continueBtn = document.getElementById('continue-btn');
-            function checkAspectRatio() {
-                if (window.innerWidth / window.innerHeight <= 1) {
-                    overlay.style.display = 'flex';
-                    document.body.classList.add('no-scroll');
-                }
-            }
-            function hideOverlay() {
-                overlay.style.display = 'none';
-                document.body.classList.remove('no-scroll');
-            }
-            checkAspectRatio();
-            if (continueBtn) {
-                continueBtn.addEventListener('click', hideOverlay);
-            }
+
+            if (!dropdownTrigger || !dropdownContent) return;
+
+            let hideTimeout;
+
+            const showMenu = () => {
+                clearTimeout(hideTimeout);
+                const rect = dropdownTrigger.getBoundingClientRect();
+                dropdownContent.style.top = `${rect.bottom + 10}px`; // No need for scrollY with sticky header
+                dropdownContent.style.left = `${rect.left}px`;
+                dropdownContent.classList.add('show');
+            };
+
+            const hideMenu = () => {
+                hideTimeout = setTimeout(() => {
+                    dropdownContent.classList.remove('show');
+                }, 200);
+            };
+
+            dropdownTrigger.addEventListener('mouseenter', showMenu);
+            dropdownTrigger.addEventListener('mouseleave', hideMenu);
+            
+            dropdownContent.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+            dropdownContent.addEventListener('mouseleave', hideMenu);
         });
     </script>
 </body>
