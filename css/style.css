@@ -1,0 +1,27 @@
+/**
+ * Custom Font Definitions
+ *
+ * This file uses the @font-face at-rule to load local font files.
+ * It defines two font families, 'Primary' and 'Secondary', which can then be
+ * used throughout the rest of the website's stylesheets.
+ */
+
+/* Definition for the 'Primary' font family */
+@font-face {
+  /* This is the name you will use to refer to the font in your CSS */
+  font-family: 'Primary';
+
+  /* This specifies the path to the font file and its format. */
+  /* The path is relative to the location of this CSS file. */
+  src: url('../fonts/primary.woff') format('woff');
+}
+
+/* Definition for the 'Secondary' font family */
+@font-face {
+  /* This is the name you will use to refer to the font in your CSS */
+  font-family: 'Secondary';
+
+  /* This specifies the path to the font file and its format. */
+  /* The path is relative to the location of this CSS file. */
+  src: url('../fonts/secondary.woff') format('woff');
+}
