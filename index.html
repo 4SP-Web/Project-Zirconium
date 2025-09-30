@@ -3,20 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP - HOME</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script src="/panic-key.js"></script>
-    <script src="/url-changer.js"></script>
+    <title>5SP - HOME</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../activator-mini.js"></script>
     
     <style>
-        /* This inline style ensures the links are hidden by default before JS loads */
-        .logged-in-link, .logged-out-link {
-            display: none;
+        /* --- GLOBAL & ANIMATION STYLES --- */
+        #binary-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+        /* This class is added by JS on scroll to fade the background */
+        body.scrolled #binary-background {
+            opacity: 0;
         }
 
-        /* --- STICKY FOOTER & BODY STYLES --- */
+        /* --- BASE & LAYOUT STYLES --- */
+        html {
+            background-color: #0d0d0d; /* Prevents white flash on load */
+            scroll-behavior: smooth;
+        }
         html, body {
             height: 100%;
         }
@@ -24,376 +36,421 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            color: #E0E0E0;
+            font-family: 'Primary', sans-serif;
+            margin: 0;
         }
         main {
             flex-grow: 1;
         }
-        /* A class to prevent scrolling when an overlay is active */
         body.no-scroll {
             overflow: hidden;
+        }
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* --- HEADER STYLES --- */
+        .main-header {
+            padding: 15px 0;
+            border-bottom: 1px solid #2a2a2a;
+            background-color: rgba(13, 13, 13, 0.8); /* Semi-transparent */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo img {
+            height: 40px;
+            display: block;
+        }
+        .main-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        .main-nav a {
+            text-decoration: none;
+            color: #E0E0E0;
+            font-family: 'Secondary', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+        .main-nav a:hover, .main-nav a.dropbtn:hover {
+            color: #6720BD;
+        }
+        a.dropbtn {
+            cursor: pointer;
+        }
+        .logged-in-link, .logged-out-link {
+            display: none; /* Hidden by default before JS loads */
+        }
+
+        /* --- AUTH BUTTONS --- */
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 5px;
+            font-family: 'Secondary', sans-serif;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        .btn-login {
+            background-color: transparent;
+            border-color: #6720BD;
+            color: #6720BD;
+        }
+        .btn-login:hover {
+            background-color: #6720BD;
+            color: #fff;
+        }
+        .btn-signup {
+            background-color: #6720BD;
+            color: #fff;
+        }
+        .btn-signup:hover {
+            background-color: #4b138f;
+        }
+        .btn-logout {
+            background-color: #444;
+            color: #fff;
+        }
+        .btn-logout:hover {
+            background-color: #555;
+        }
+
+        /* --- DROPDOWN MENU --- */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #1f1f1f;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+            z-index: 101;
+            border-radius: 8px;
+            border: 1px solid #333;
+            overflow: hidden; /* For border-radius */
+        }
+        .dropdown-content.show {
+            display: block;
+        }
+        .dropdown-header {
+            padding: 12px 16px;
+            color: #888;
+            font-family: 'Secondary', sans-serif;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .dropdown-divider {
+            border: none;
+            height: 1px;
+            background-color: #333;
+            margin: 0;
+        }
+        .dropdown-content a {
+            color: #E0E0E0;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-family: 'Primary', sans-serif;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .dropdown-content a:hover {
+            background-color: #6720BD;
+            color: #fff;
+        }
+
+        /* --- HERO & CONTENT SECTIONS --- */
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 150px 0;
+        }
+        .hero-section h1 {
+            font-family: 'Secondary', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 4rem); /* Responsive font size */
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            margin: 0;
+        }
+        .news-bar {
+            padding: 15px 0;
+            text-align: center;
+            background-color: #111;
+            border-top: 1px solid #2a2a2a;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .news-bar p {
+            margin: 0;
+            font-style: italic;
+            color: #aaa;
+        }
+        .hp-infra-section {
+            padding: 80px 0;
+            border-top: 1px solid #2a2a2a;
+        }
+        .hp-infra-section h2, .info-sections h3, .timeline-section h2, .whats-new-section h2 {
+            font-family: 'Secondary', sans-serif;
+            color: #ffffff;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .hp-infra-section h2 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        .hp-infra-section p {
+            text-align: center;
+            font-size: 1.2em;
+            color: #a0a0a0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .info-sections {
+            padding: 80px 0;
+            border-top: 1px solid #2a2a2a;
+        }
+        .info-sections .container {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+        .info-item h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        .info-item p {
+            line-height: 1.7;
+            color: #a0a0a0;
         }
 
         /* --- MOBILE ASPECT RATIO WARNING STYLES --- */
         #mobile-warning-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            /* The backdrop-filter blurs content behind the element */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px); /* For Safari browser compatibility */
+            -webkit-backdrop-filter: blur(8px);
             z-index: 9999;
-            display: none; /* Hidden by default; shown by JS */
+            display: none;
             justify-content: center;
             align-items: center;
-            font-family: 'PrimaryFont', sans-serif;
             padding: 15px;
             box-sizing: border-box;
         }
-
         .warning-box {
-            background-color: #ffffff;
-            padding: 30px 40px;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 450px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.25);
-            color: #333;
+            background-color: #1f1f1f; padding: 30px 40px; border-radius: 10px;
+            text-align: center; max-width: 450px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5); color: #E0E0E0; border: 1px solid #333;
         }
-
         .warning-box h2 {
-            margin-top: 0;
-            font-size: 1.8em;
-            text-transform: uppercase;
+            margin-top: 0; font-size: 1.8em; color: #fff;
         }
-
         .warning-box p {
-            font-size: 1.05em;
-            line-height: 1.6;
-            margin-bottom: 25px;
+            font-size: 1.05em; line-height: 1.6; margin-bottom: 25px;
         }
-
         #continue-btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            background-color: #6720BD; /* Matches your site's theme color */
-            color: #fff;
-            font-family: 'PrimaryFont', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
+            padding: 12px 25px; border: none; border-radius: 8px;
+            background-color: #6720BD; color: #fff; font-family: 'Secondary', sans-serif;
+            font-weight: 700; text-transform: uppercase; cursor: pointer;
             transition: background-color 0.3s ease;
         }
-
         #continue-btn:hover {
-            background-color: #4b138f; /* A darker shade for the hover effect */
+            background-color: #4b138f;
         }
-
-
-        /* --- STYLES FOR VERSION HISTORY, WHAT'S NEW, & FOOTER --- */
+        
+        /* --- TIMELINE & WHAT'S NEW --- */
         .timeline-section, .whats-new-section {
-            padding: 80px 0;
-            text-align: center;
+            padding: 80px 0; text-align: center; border-top: 1px solid #2a2a2a;
         }
-
-        .whats-new-section {
-            padding: 60px 0; /* Reduced padding */
-        }
-
-        .timeline-section {
-            border-top: 1px solid #eee;
-        }
-
-        .whats-new-section {
-            border-top: 1px solid #eee;
-        }
-
+        .whats-new-section { padding: 60px 0; }
         .timeline-section h2, .whats-new-section h2 {
-            font-size: 2.8em;
-            margin-bottom: 20px;
-            color: #333;
-            text-transform: uppercase;
-            font-family: 'PrimaryFont', sans-serif;
-            font-weight: 700;
+            font-size: 2.8em; margin-bottom: 20px;
         }
-
         .whats-new-content {
-            max-width: 950px; /* Made the section wider */
-            margin: 40px auto 0 auto;
-            text-align: left;
+            max-width: 950px; margin: 40px auto 0 auto; text-align: left;
         }
-            
         .whats-new-content p {
-            font-size: 1.05em; /* Slightly smaller font */
-            font-style: italic; /* Italicized text */
-            line-height: 1.6;
-            color: #555;
+            font-size: 1.05em; font-style: italic; line-height: 1.6; color: #a0a0a0;
         }
-
-        footer {
-            background-color: #f8f8f8;
-            color: #777;
-            text-align: center;
-            padding: 20px 0;
-            border-top: 1px solid #eee;
-        }
-
-
-        /* --- STYLES FOR VERSION HISTORY TIMELINE --- */
         .timeline-container {
-            position: relative;
-            width: 100%;
-            margin: 60px 0;
+            position: relative; width: 100%; margin: 60px 0;
         }
         .timeline-wrapper {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            position: relative;
+            display: flex; justify-content: space-around; align-items: center; position: relative;
         }
-        /* The line connecting the dots */
         .timeline-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 12%; /* Added padding */
-            right: 12%;/* Added padding */
-            height: 2px;
-            background-color: #e0e0e0;
-            transform: translateY(-50%);
-            z-index: 1;
+            content: ''; position: absolute; top: 50%; left: 12%; right: 12%;
+            height: 2px; background-color: #333; transform: translateY(-50%); z-index: 1;
         }
-
         .timeline-item {
-            text-align: center;
-            position: relative;
-            z-index: 2; /* Sits on top of the line */
-            cursor: pointer;
+            text-align: center; position: relative; z-index: 2; cursor: pointer;
         }
-        
         .timeline-item .timeline-circle {
-            display: block;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin: 0 auto 15px auto; /* Center the circle and add space below for text */
-            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+            display: block; width: 30px; height: 30px; border-radius: 50%;
+            margin: 0 auto 15px auto; transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-
         .timeline-item:hover .timeline-circle {
-            transform: scale(1.2);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transform: scale(1.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        
-        /* Specific gradient colors for each version's circle */
         .timeline-item:nth-child(1) .timeline-circle { background-image: linear-gradient(45deg, #434343 0%, #000000 100%); }
         .timeline-item:nth-child(2) .timeline-circle { background-image: linear-gradient(45deg, #87CEEB 0%, #4285F4 100%); }
         .timeline-item:nth-child(3) .timeline-circle { background-image: linear-gradient(45deg, #FEE140 0%, #FA709A 100%); }
         .timeline-item:nth-child(4) .timeline-circle { background-image: linear-gradient(45deg, #8820bd 0%, #6720BD 100%); }
-
-
-        .timeline-item-content h3, .timeline-item-content p {
-            margin: 0;
-            padding: 0;
-        }
         .timeline-item-content h3 {
-            font-size: 1.1em;
-            margin-bottom: 4px;
-            padding-top: 10px; /* Added padding to push it down from the line */
+            font-size: 1.1em; margin-bottom: 4px; padding-top: 10px; color: #f0f0f0;
         }
         .timeline-item-content p {
-            font-size: 0.9em;
-            color: #666;
+            margin: 0; padding: 0; font-size: 0.9em; color: #999;
         }
 
-        /* --- MODAL STYLES FOR TIMELINE --- */
+        /* --- TIMELINE MODAL --- */
         .modal-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.4s ease;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); z-index: 1000; opacity: 0; transition: opacity 0.4s ease;
         }
-
         .version-modal {
-            display: none;
-            position: absolute; /* Changed to absolute */
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            overflow: hidden;
-            /* Transition properties and border-radius are set by JS */
+            display: none; position: absolute; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            z-index: 1001; overflow: hidden;
         }
-        
-        .version-modal.has-gradient-bg {
-            color: #fff;
-        }
-
+        .version-modal.has-gradient-bg { color: #fff; }
         .modal-inner-content {
-            opacity: 0;
-            height: 100%;
-            overflow-y: auto;
-            box-sizing: border-box;
-            padding: 25px 30px;
-             /* Transition properties are set by JS */
+            opacity: 0; height: 100%; overflow-y: auto;
+            box-sizing: border-box; padding: 25px 30px;
         }
-
-        .modal-backdrop.show {
-            display: block;
-            opacity: 1;
-        }
-
-        .version-modal.visible {
-            display: block;
-        }
-
+        .modal-backdrop.show { display: block; opacity: 1; }
+        .version-modal.visible { display: block; }
         .modal-inner-content .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 2em;
-            color: #aaa;
-            background: none;
-            border: none;
-            cursor: pointer;
+            position: absolute; top: 10px; right: 15px; font-size: 2em;
+            color: #aaa; background: none; border: none; cursor: pointer; transition: color 0.3s ease;
         }
-
-        .version-modal.has-gradient-bg .modal-inner-content .close-btn {
-            color: #eee;
-        }
-
-        .modal-inner-content .close-btn:hover {
-            color: #333;
-        }
-
-        .version-modal.has-gradient-bg .modal-inner-content .close-btn:hover {
-            color: #fff;
-        }
-
+        .version-modal.has-gradient-bg .modal-inner-content .close-btn { color: #eee; }
+        .modal-inner-content .close-btn:hover { color: #fff; }
         .modal-inner-content h3 {
-            font-family: 'PrimaryFont', sans-serif;
-            text-transform: uppercase;
-            margin-top: 0;
-            margin-bottom: 20px;
+            font-family: 'Secondary', sans-serif; text-transform: uppercase; margin-top: 0; margin-bottom: 20px;
         }
         .modal-inner-content p {
-            font-style: normal;
-            font-size: 1em;
-            line-height: 1.6;
-            margin-bottom: 10px;
+            font-style: normal; font-size: 1em; line-height: 1.6; margin-bottom: 10px;
         }
-
-        #modalDescription {
-            font-size: 0.9em;
-            font-style: italic;
+        #modalDescription { font-size: 0.9em; font-style: italic; }
+        #modalStartDate, #modalCreationDate {
+            font-family: 'Primary', sans-serif; font-weight: 700;
         }
-
-        #modalStartDate,
-        #modalCreationDate {
-            font-family: 'PrimaryFont', sans-serif;
-            font-weight: 700;
-        }
-
-        .modal-inner-content p strong {
-            color: #333;
-        }
-
-        .version-modal.has-gradient-bg .modal-inner-content p strong {
-             color: #fff;
-        }
-
+        .modal-inner-content p strong { color: #fff; }
         .modal-redirect-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 8px;
-            background-color: #6720BD;
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-            margin-top: 20px;
-            float: right;
-            transition: background-color 0.3s ease;
-            font-family: 'PrimaryFont', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
+            display: inline-block; padding: 10px 20px; border-radius: 8px; background-color: #6720BD;
+            color: #fff; text-decoration: none; font-weight: bold; margin-top: 20px; float: right;
+            transition: background-color 0.3s ease; font-family: 'Secondary', sans-serif;
+            font-weight: 700; text-transform: uppercase;
         }
-        .modal-redirect-btn:hover {
-            background-color: #4b138f;
+        .modal-redirect-btn:hover { background-color: #4b138f; }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: #000000; color: #777; text-align: center;
+            padding: 20px 0; border-top: 1px solid #2a2a2a;
         }
-
-
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="../panic-key.js"></script>
 </head>
 <body>
+    <canvas id="binary-background"></canvas>
+    
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <img src="images/logo-light.png" alt="4SP Logo">
+            </div>
+            <nav class="main-nav">
+                <ul id="mainNavLinks">
+                    <li class="dropdown" id="more-dropdown">
+                        <a class="dropbtn">MORE</a>
+                    </li>
+                    <li class="logged-in-link"><a href="logged-in/dashboard.html">DASHBOARD</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons" id="authButtons">
+                </div>
+        </div>
+    </header>
+
     <main>
-        <section class="hero-section dark-bg">
+        <section class="hero-section">
             <div class="container">
                 <h1>4SIMPLEPROBLEMS</h1>
             </div>
         </section>
 
-        <header class="main-header light-bg">
-            <div class="container">
-                <div class="logo">
-                    <img src="images/logo-dark.png" alt="4SP Logo">
-                </div>
-                <nav class="main-nav">
-                    <ul id="mainNavLinks">
-                        <li class="dropdown" id="more-dropdown">
-                            <a class="dropbtn">MORE</a>
-                        </li>
-                        <li class="logged-in-link"><a href="logged-in/dashboard.html">DASHBOARD</a></li>
-                        </ul>
-                </nav>
-                <div class="auth-buttons" id="authButtons">
-                </div>
-            </div>
-        </header>
-
-        <section class="news-bar light-bg">
+        <section class="news-bar">
             <div class="container">
                 <p>Fast. Secure. Yours.</p>
             </div>
         </section>
-        <section class="hp-infra-section light-bg">
+
+        <section class="hp-infra-section">
             <div class="container">
                 <h2>Over 150 users, and counting.</h2>
                 <p>Engage in uneducational games, modify your experience, and escape reality.</p>
             </div>
         </section>
-        <section class="info-sections light-bg">
+
+        <section class="info-sections">
             <div class="container">
-                <div class="info-item left-image">
-                    <div class="info-content"><h3>ABOUT US</h3><p>We are the perfect website to have fun during boring school hours, disrupt everyone that hates these sounds, and to play some games when you have your work done, or don't. I don't care fr.</p></div>
+                <div class="info-item">
+                    <h3>ABOUT US</h3>
+                    <p>We are the perfect website to have fun during boring school hours, disrupt everyone that hates these sounds, and to play some games when you have your work done, or don't. I don't care fr.</p>
                 </div>
-                <div class="info-item right-image">
-                    <div class="info-content"><h3>SOUNDBOARD</h3><p>Unleash a barrage of sounds to playfully annoy your teachers. Perfect for those moments when you need a little mischief. your teachers will actually become "😡" right to your face.</p></div>
+                <div class="info-item">
+                    <h3>SOUNDBOARD</h3>
+                    <p>Unleash a barrage of sounds to playfully annoy your teachers. Perfect for those moments when you need a little mischief. your teachers will actually become "😡" right to your face.</p>
                 </div>
-                <div class="info-item left-image">
-                    <div class="info-content"><h3>OTHER STUFF</h3><p>We have a lot of other features implemented, like an entirely redesigned requests page, playlists page, and other stuff that i felt like adding bc i have free will</p></div>
+                <div class="info-item">
+                    <h3>OTHER STUFF</h3>
+                    <p>We have a lot of other features implemented, like an entirely redesigned requests page, playlists page, and other stuff that i felt like adding bc i have free will</p>
                 </div>
-                <div class="info-item right-image">
-                    <div class="info-content"><h3>THIS WEBSITE'S GOALS</h3><p>The goals for this website is to make the best, most fun experience for students that don't care about their academic grade, or who just don't care at all. I hate ads, and I love seeing the number of users go up. Alright?</p></div>
+                <div class="info-item">
+                    <h3>THIS WEBSITE'S GOALS</h3>
+                    <p>The goals for this website is to make the best, most fun experience for students that don't care about their academic grade, or who just don't care at all. I hate ads, and I love seeing the number of users go up. Alright?</p>
                 </div>
-                <div class="info-item left-image">
-                    <div class="info-content"><h3>A NOTE ON PROXIES</h3><p>As a personal project without any income, I unfortunately cannot continue to manage and support the proxy servers. The costs and effort required are significant, especially while also working to support new features and fulfill all of your requests. The proxy services have been archived for now. I sincerely apologize for this inconvenience.</p></div>
+                <div class="info-item">
+                    <h3>A NOTE ON PROXIES</h3>
+                    <p>As a personal project without any income, I unfortunately cannot continue to manage and support the proxy servers. The costs and effort required are significant, especially while also working to support new features and fulfill all of your requests. The proxy services have been archived for now. I sincerely apologize for this inconvenience.</p>
                 </div>
             </div>
         </section>
 
-        <section class="timeline-section light-bg">
+        <section class="timeline-section">
             <div class="container">
                 <h2>VERSION HISTORY</h2>
                 <div class="timeline-container">
@@ -430,17 +487,19 @@
                 </div>
             </div>
         </section>
-        <section class="whats-new-section light-bg">
+
+        <section class="whats-new-section">
             <div class="container">
-                <h2>WHAT'S NEW</h2>
+                <h2>WHAT'S NEW IN V4</h2>
                 <div class="whats-new-content">
                     <p>
-                        V4 is a massive overhaul focused on security and fun. Accounts are more secure than ever, and we're now verified with Google, so the official logo and title appear when you sign in instead of a generic Firebase URL. The new 'Games' section is packed with curated sites modified for 4SP like StrongdogXP and GN-Math, alongside standalone classics like the original DOOM and Eaglercraft. This is all on top of the redesigned dashboard, enhanced soundboard, and more secure account options. Have fun ig
+                        V4 was a massive overhaul focused on security and fun. Accounts are more secure than ever, and we're now verified with Google, so the official logo and title appear when you sign in instead of a generic Firebase URL. The new 'Games' section is packed with curated sites modified for 4SP like StrongdogXP and GN-Math, alongside standalone classics like the original DOOM and Eaglercraft. This is all on top of the redesigned dashboard, enhanced soundboard, and more secure account options. Have fun ig
                     </p>
                 </div>
             </div>
         </section>
     </main>
+
     <footer>
         <div class="container">
             <p>&copy; 2025 4SP. All rights reserved.</p>
@@ -476,62 +535,86 @@
     </div>
 
     <script>
+        // --- BINARY BACKGROUND & SCROLL FADE SCRIPT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('binary-background');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+
+                const setCanvasDimensions = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+
+                setCanvasDimensions();
+                window.addEventListener('resize', setCanvasDimensions);
+
+                const characters = '01';
+                const fontSize = 16;
+                const columns = Math.floor(canvas.width / fontSize);
+                const drops = Array(columns).fill(1);
+
+                const draw = () => {
+                    ctx.fillStyle = 'rgba(26, 26, 26, 0.05)'; // Fading effect for old characters
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = '#FFFFFF'; // Color of the binary text
+                    ctx.font = `${fontSize}px monospace`;
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                };
+
+                let animationInterval = setInterval(draw, 40);
+
+                const handleScroll = () => {
+                    if (window.scrollY > 50) {
+                        document.body.classList.add('scrolled');
+                        if (animationInterval) {
+                            clearInterval(animationInterval);
+                            animationInterval = null;
+                        }
+                    } else {
+                        document.body.classList.remove('scrolled');
+                        if (!animationInterval) {
+                            animationInterval = setInterval(draw, 40);
+                        }
+                    }
+                };
+                
+                window.addEventListener('scroll', handleScroll, { passive: true });
+            }
+        });
+
         // --- TIMELINE MODAL SCRIPT ---
         const versionDetails = {
-            v1: {
-                title: 'Version 1 Details',
-                startDate: '<strong>Started:</strong> March 8th, 2025',
-                creationDate: '<strong>Released:</strong> March 13th, 2025',
-                description: 'This was the initial launch of 4SP. It was a simple page with a basic soundboard and requests page. The foundation of 4SP was laid here.',
-                url: 'https://4simpleproblems.github.io/v1'
-            },
-            v2: {
-                title: 'Version 2 Details',
-                startDate: '<strong>Started:</strong> March 21th, 2025',
-                creationDate: '<strong>Released:</strong> April 11th, 2025',
-                description: 'Version 2 introduced many more pages, like experimental music, games, etc. The design was updated to be pill shaped, rounded and user-friendly.',
-                url: 'https://4simpleproblems.github.io/v2'
-            },
-            v3: {
-                title: 'Version 3 Details',
-                startDate: '<strong>Started:</strong> May 7th, 2025',
-                creationDate: '<strong>Released:</strong> May 14th, 2025',
-                description: 'This version focused on expanding the features, adding playlists, which was in beta, and improving the overall performance. The website had a redesign of a white, unrounded theme.',
-                url: 'https://4simpleproblems.github.io/v3'
-            },
-            v4: {
-                title: 'Version 4 Details',
-                startDate: '<strong>Started:</strong> May 26th, 2025',
-                creationDate: '<strong>Released:</strong> August 23rd, 2025',
-                description: 'The current version. A complete overhaul with a focus on security, fun, and new content like the Games section. The UI was completely redesigned.',
-                url: '#'
-            }
+            v1: { title: 'Version 1 Details', startDate: '<strong>Started:</strong> March 8th, 2025', creationDate: '<strong>Released:</strong> March 13th, 2025', description: 'This was the initial launch of 4SP. It was a simple page with a basic soundboard and requests page. The foundation of 4SP was laid here.', url: 'https://4simpleproblems.github.io/v1' },
+            v2: { title: 'Version 2 Details', startDate: '<strong>Started:</strong> March 21th, 2025', creationDate: '<strong>Released:</strong> April 11th, 2025', description: 'Version 2 introduced many more pages, like experimental music, games, etc. The design was updated to be pill shaped, rounded and user-friendly.', url: 'https://4simpleproblems.github.io/v2' },
+            v3: { title: 'Version 3 Details', startDate: '<strong>Started:</strong> May 7th, 2025', creationDate: '<strong>Released:</strong> May 14th, 2025', description: 'This version focused on expanding the features, adding playlists, which was in beta, and improving the overall performance. The website had a redesign of a white, unrounded theme.', url: 'https://4simpleproblems.github.io/v3' },
+            v4: { title: 'Version 4 Details', startDate: '<strong>Started:</strong> May 26th, 2025', creationDate: '<strong>Released:</strong> August 23rd, 2025', description: 'A complete overhaul with a focus on security, fun, and new content like the Games section. The UI was completely redesigned.', url: '#' }
         };
 
         const modal = document.getElementById('versionModal');
         const backdrop = document.getElementById('versionModalBackdrop');
         const closeModalBtn = document.getElementById('closeModalBtn');
-        let activeCircle = null; // Store the clicked circle element
-        let activeModal = false; // Prevents multiple clicks during animation
+        let activeCircle = null;
+        let activeModal = false;
 
         function showVersionDetails(versionKey, event) {
             if (activeModal) return;
             activeModal = true;
-
             const details = versionDetails[versionKey];
             activeCircle = event.currentTarget.querySelector('.timeline-circle');
-            if (!details || !activeCircle) {
-                activeModal = false;
-                return;
-            }
-
+            if (!details || !activeCircle) { activeModal = false; return; }
             const initialRect = activeCircle.getBoundingClientRect();
-
-            // Get background from circle
             const circleStyle = window.getComputedStyle(activeCircle);
             const bgImage = circleStyle.backgroundImage;
-
-            // Populate content first
             document.getElementById('modalTitle').innerText = details.title;
             document.getElementById('modalStartDate').innerHTML = details.startDate;
             document.getElementById('modalCreationDate').innerHTML = details.creationDate;
@@ -539,42 +622,26 @@
             const redirectBtn = document.getElementById('modalRedirectBtn');
             redirectBtn.href = details.url;
             redirectBtn.style.display = details.url === '#' ? 'none' : 'inline-block';
-
-            // Set initial state for animation
-            modal.style.transition = 'none'; // No transition for initial setup
+            modal.style.transition = 'none';
             const initialTop = initialRect.top + window.scrollY;
             const initialLeft = initialRect.left + window.scrollX;
-
             modal.style.top = `${initialTop}px`;
             modal.style.left = `${initialLeft}px`;
             modal.style.width = `${initialRect.width}px`;
             modal.style.height = `${initialRect.height}px`;
-            modal.style.borderRadius = '15px'; // Start with 15px, as 30x30 with 15px radius is a circle
+            modal.style.borderRadius = '15px';
             modal.style.backgroundImage = bgImage;
             modal.classList.add('has-gradient-bg');
-            
             const innerContent = modal.querySelector('.modal-inner-content');
             innerContent.style.opacity = 0;
-
             modal.classList.add('visible');
             backdrop.classList.add('show');
-
-            // Force reflow to apply initial styles before animating
             requestAnimationFrame(() => {
-                modal.style.transition = 'width 0.4s ease, height 0.4s ease, left 0.4s ease';
-                
-                const finalWidth = 280; 
-                const finalHeight = 256; 
-                
+                modal.style.transition = 'width 0.4s ease, height 0.4s ease, left 0.4s ease, top 0.4s ease';
+                const finalWidth = 280, finalHeight = 256;
                 modal.style.width = `${finalWidth}px`;
                 modal.style.height = `${finalHeight}px`;
-
-                // V4 opens to the left
-                if (versionKey === 'v4') {
-                    modal.style.left = `${initialLeft - finalWidth + initialRect.width}px`;
-                }
-
-                // Fade in content after expansion
+                if (versionKey === 'v4') { modal.style.left = `${initialLeft - finalWidth + initialRect.width}px`; }
                 setTimeout(() => {
                     innerContent.style.transition = 'opacity 0.3s ease';
                     innerContent.style.opacity = 1;
@@ -584,105 +651,80 @@
 
         function hideVersionDetails() {
             if (!activeModal || !activeCircle) return;
-
             const innerContent = modal.querySelector('.modal-inner-content');
-
-            // 1. Fade out content fast
             innerContent.style.transition = 'opacity 0.1s ease';
             innerContent.style.opacity = 0;
-            
-            // 2. After content is faded, start shrinking
             setTimeout(() => {
                 modal.style.transition = 'width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease, border-radius 0.4s ease';
-                
-                // BUG FIX: Recalculate the circle's current position
                 const currentRect = activeCircle.getBoundingClientRect();
                 const finalTop = currentRect.top + window.scrollY;
                 const finalLeft = currentRect.left + window.scrollX;
-
                 modal.style.top = `${finalTop}px`;
                 modal.style.left = `${finalLeft}px`;
                 modal.style.width = `${currentRect.width}px`;
                 modal.style.height = `${currentRect.height}px`;
-                modal.style.borderRadius = '15px'; // Stays 15px, effectively a circle at this size
-                
+                modal.style.borderRadius = '15px';
                 backdrop.classList.remove('show');
-            }, 100); // Short delay for content to fade
-            
-            // 3. Clean up after all animations are done
+            }, 100);
             setTimeout(() => {
                 modal.classList.remove('visible');
                 modal.style.backgroundImage = '';
                 modal.classList.remove('has-gradient-bg');
-                activeCircle = null; // Clear the active circle
-                activeModal = false; // Allow clicking again
-            }, 500); // 100ms delay + 400ms transition
+                activeCircle = null;
+                activeModal = false;
+            }, 500);
         }
 
         closeModalBtn.addEventListener('click', hideVersionDetails);
         backdrop.addEventListener('click', hideVersionDetails);
 
-
-        // --- NEW: One-Time Force Logout Script ---
-        // This script runs once per user per browser to ensure data consistency
-        // by forcing a re-login, which will trigger the account-fixing logic on the login page.
+        // --- ONE-TIME LOGOUT SCRIPT ---
         (function() {
             const forceLogoutKey = 'forceLogoutCompleted_v1';
-            // Check if the one-time logout has already been performed.
             if (!localStorage.getItem(forceLogoutKey)) {
-                console.log('Performing one-time force logout to ensure data consistency...');
-                // Use an auth state observer to ensure Firebase is ready.
+                console.log('Performing one-time force logout...');
                 const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-                    unsubscribe(); // Stop listening after the first check.
+                    unsubscribe();
                     if (user) {
-                        // If a user is logged in, sign them out.
-                        firebase.auth().signOut().then(() => {
-                            localStorage.setItem(forceLogoutKey, 'true');
-                            window.location.reload();
-                        }).catch(error => {
-                            // If signout fails for some reason, still set the flag and reload to avoid loops.
-                            console.error('Force logout failed, but setting flag to prevent loop:', error);
+                        firebase.auth().signOut().finally(() => {
                             localStorage.setItem(forceLogoutKey, 'true');
                             window.location.reload();
                         });
                     } else {
-                        // If no user is logged in, just set the flag.
                         localStorage.setItem(forceLogoutKey, 'true');
                     }
                 });
             }
         })();
 
-        // Firebase Authentication Logic
-        const authButtonsDiv = document.getElementById('authButtons');
-        const loggedInLinks = document.querySelectorAll('.logged-in-link');
-        const loggedOutLinks = document.querySelectorAll('.logged-out-link');
-
-        function logout() {
-            firebase.auth().signOut().catch(error => console.error('Error logging out:', error));
-        }
-
-        firebase.auth().onAuthStateChanged(user => {
-            authButtonsDiv.innerHTML = '';
-            if (user) {
-                authButtonsDiv.innerHTML = `<a href="#" class="btn btn-logout" onclick="logout()">LOGOUT</a>`;
-                loggedInLinks.forEach(link => link.style.display = 'inline-block');
-                loggedOutLinks.forEach(link => link.style.display = 'none');
-            } else {
-                authButtonsDiv.innerHTML = `<a href="login.html" class="btn btn-login">LOGIN</a> <a href="signup.html" class="btn btn-signup">SIGN UP</a>`;
-                loggedInLinks.forEach(link => link.style.display = 'none');
-                loggedOutLinks.forEach(link => link.style.display = 'inline-block');
-            }
-        });
-
-        // Dropdown Menu & Aspect Ratio Logic
+        // --- FIREBASE AUTH & UI LOGIC ---
         document.addEventListener('DOMContentLoaded', () => {
+            const authButtonsDiv = document.getElementById('authButtons');
+            const loggedInLinks = document.querySelectorAll('.logged-in-link');
+            const loggedOutLinks = document.querySelectorAll('.logged-out-link');
+            
+            window.logout = function() {
+                firebase.auth().signOut().catch(error => console.error('Error logging out:', error));
+            }
+
+            firebase.auth().onAuthStateChanged(user => {
+                authButtonsDiv.innerHTML = '';
+                if (user) {
+                    authButtonsDiv.innerHTML = `<a href="#" class="btn btn-logout" onclick="logout()">LOGOUT</a>`;
+                    loggedInLinks.forEach(link => link.style.display = 'inline-block');
+                    loggedOutLinks.forEach(link => link.style.display = 'none');
+                } else {
+                    authButtonsDiv.innerHTML = `<a href="login.html" class="btn btn-login">LOGIN</a> <a href="signup.html" class="btn btn-signup">SIGN UP</a>`;
+                    loggedInLinks.forEach(link => link.style.display = 'none');
+                    loggedOutLinks.forEach(link => link.style.display = 'inline-block');
+                }
+            });
+
+            // --- DROPDOWN & ASPECT RATIO ---
             const dropdownTrigger = document.getElementById('more-dropdown');
             const dropdownContent = document.getElementById('more-menu-content');
-
             if (dropdownTrigger && dropdownContent) {
                 let hideTimeout;
-
                 const showMenu = () => {
                     clearTimeout(hideTimeout);
                     const rect = dropdownTrigger.getBoundingClientRect();
@@ -690,46 +732,28 @@
                     dropdownContent.style.left = `${rect.left}px`;
                     dropdownContent.classList.add('show');
                 };
-
                 const hideMenu = () => {
-                    hideTimeout = setTimeout(() => {
-                        dropdownContent.classList.remove('show');
-                    }, 200);
+                    hideTimeout = setTimeout(() => dropdownContent.classList.remove('show'), 200);
                 };
-
                 dropdownTrigger.addEventListener('mouseenter', showMenu);
                 dropdownTrigger.addEventListener('mouseleave', hideMenu);
-                
                 dropdownContent.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
                 dropdownContent.addEventListener('mouseleave', hideMenu);
             }
 
-            // --- NEW: ASPECT RATIO WARNING LOGIC ---
             const overlay = document.getElementById('mobile-warning-overlay');
             const continueBtn = document.getElementById('continue-btn');
-
             function checkAspectRatio() {
-                // Aspect Ratio is calculated by width / height.
-                // If the result is 1 or less, it means the viewport is square or portrait.
-                const aspectRatio = window.innerWidth / window.innerHeight;
-                if (aspectRatio <= 1) { 
+                if (window.innerWidth / window.innerHeight <= 1) {
                     overlay.style.display = 'flex';
                     document.body.classList.add('no-scroll');
                 }
             }
-
-            function hideOverlay() {
+            if(continueBtn) continueBtn.addEventListener('click', () => {
                 overlay.style.display = 'none';
                 document.body.classList.remove('no-scroll');
-            }
-
-            // Check the aspect ratio as soon as the page is ready
+            });
             checkAspectRatio();
-
-            // Add the click event to the continue button
-            if (continueBtn) {
-                continueBtn.addEventListener('click', hideOverlay);
-            }
         });
     </script>
 </body>
